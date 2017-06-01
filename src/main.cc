@@ -16,17 +16,28 @@ void *thread_main(void *arg){
     int tid = (long long)arg;
     std::ostringstream ss;
 
-    ss << CFG_FILEPATH << tid << ".txt";
+    ss << CFG_FILEPATH << tid << ".fastq";
     std::ofstream out(ss.str());
     unsigned long long end = NUM_STR + (NUM_STR * CFG_NUM_THREAD + tid < NUM_TOT_STR ? 1 : 0);
     for (unsigned long long i = 0; i < end; i++){
         if (i % 1000000 == 0){
             std::cout << ".";
         }
-        out << i << std::endl;
+        out << "@EAS139:136:FC706VJ:2:2104:15343:197393 1:Y:18:ATCACG" << std::endl; //Sample id
         unsigned long long x = ((unsigned long long) rand() << 31) + rand();
-        x %= CFG_TOTAL_LENGTH-CFG_STR_LENGTH;
-        out.write(&dna[x], CFG_STR_LENGTH);
+        x %= (CFG_TOTAL_LENGTH-CFG_STR_LENGTH+1);
+        for (unsigned long long j = x; j < x + CFG_STR_LENGTH; j++){
+            if (0){//rand()%100 < CFG_ERROR_RATE){
+                out << types[rand()&3];
+            } else {
+                out << dna[j];
+            }
+        }
+        out << std::endl;
+        out << "+" << std::endl;
+        for (unsigned long long j = 0; j < CFG_STR_LENGTH; j++){
+            out << "J";
+        }
         out << std::endl;
     }
     pthread_exit(0);
@@ -44,6 +55,10 @@ int main(int argc, char *argv[]){
     for (long long i = 0; i < CFG_NUM_THREAD; i++){
         pthread_create(&threads[i], NULL, thread_main, (void*)i);
     }
+    std::ofstream out("answer.txt");
+    out << dna << std::endl;
+    out.close();
+    /*
     std::ostringstream ss;
     ss << CFG_FILEPATH << "total.txt";
     std::ofstream out(ss.str());
@@ -54,6 +69,7 @@ int main(int argc, char *argv[]){
         out.write(&dna[x], CFG_STR_LENGTH);
         out << std::endl;
     }
+    */
     for (long long i = 0; i < CFG_NUM_THREAD; i++){
         pthread_join(threads[i], NULL);
     }
