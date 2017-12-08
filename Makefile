@@ -9,11 +9,10 @@ SRCEXT := cc
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 DBG_OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.dbg.o))
-CFLAGS := -Wall -O3 -std=c++0x -D NDEBUG 
-DBGCFLAGS := -Wall -O0 -std=c++0x -g
+CFLAGS := -Wall -O3 -std=c++11 -D NDEBUG -D _GLIBCXX_USE_CXX11_ABI=0
+DBGCFLAGS := -Wall -O0 -std=c++11 -g
 LIB := -lpthread -ljemalloc -L lib
 INC := -I include
-
 $(TARGET): $(OBJECTS)
 	@mkdir -p $(BINDIR)
 	@echo " Linking..."
